@@ -1,0 +1,5 @@
+.idea
+*.swp
+.DS_Store
+account.py
+*.pyc
