@@ -9,15 +9,13 @@ touch pylint.csv
 # pycodestyleを実行
 echo "line error message" > pycodestyle.csv
 pycodestyle ../main.py 1>> pycodestyle.csv 2> pycodestyle_error.txt
-pycodestyle ../logtest.py 1>> pycodestyle.csv 2>> pycodestyle_error.txt
 if [ $(wc -l pycodestyle.csv | awk {'print $1'}) == '1' ]; then
     cp /dev/null pycodestyle.csv
 fi
 
 # pylintを実行
 pylint ../main.py 1>> pylint.csv 2> pylint_error.txt
-pylint ../logtest.py 1>> pylint.csv 2>> pylint_error.txt
-if [ $(wc -l pylint.csv | awk {'print $1'}) == '8' ]; then
+if [ $(wc -l pylint.csv | awk {'print $1'}) == '4' ]; then
     cp /dev/null pylint.csv
 fi
 
