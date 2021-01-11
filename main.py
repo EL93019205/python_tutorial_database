@@ -1,29 +1,49 @@
 """
 main
 """
-# pylint: disable=E0401
-import mysql.connector
+import sqlalchemy
+import sqlalchemy.ext.declarative
+import sqlalchemy.orm
+
+engine = sqlalchemy.create_engine('mysql+pymysql:///test_mysql_database2')
+
+Base = sqlalchemy.ext.declarative.declarative_base()
 
 
-conn = mysql.connector.connect(host='127.0.0.1')
-cursor = conn.cursor()
-cursor.execute('CREATE DATABASE test_mysql_database')
+# pylint: disable=R0903
+class Person(Base):
+    """
+    Person
+    """
+    __tablename__ = 'persons'
+    id = sqlalchemy.Column(
+        sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    name = sqlalchemy.Column(sqlalchemy.String(14))
 
-cursor = conn.cursor()
-cursor.execute('CREATE TABLE persons('
-               'id int NOT NULL AUTO_INCREMENT,'
-               'name varchar(14) NOT NULL,'
-               'PRIMARY KEY(id))')
-cursor.execute('INSERT INTO persons(name) values("Mike")')
-conn.commit()
 
-cursor.execute('SELECT * FROM persons')
-for row in cursor:
-    print(row)
+Base.metadata.create_all(engine)
 
-cursor.execute('UPDATE persons set name = "Michael" WHERE name = "Mike"')
-cursor.execute('DELETE FROM persons WHERE name = "Michael"')
+Session = sqlalchemy.orm.sessionmaker(bind=engine)
+session = Session()
 
-conn.commit()
-cursor.close()
-conn.close()
+# pylint: disable=E1101
+p1 = Person(name='Mike')
+session.add(p1)
+p2 = Person(name='Nancy')
+session.add(p2)
+p3 = Person(name='Jun')
+session.add(p3)
+session.commit()
+
+p4 = session.query(Person).filter_by(name='Mike').first()
+p4.name = 'Michael'
+session.add(p4)
+session.commit()
+
+p5 = session.query(Person).filter_by(name='Nancy').first()
+session.delete(p5)
+session.commit()
+
+persons = session.query(Person).all()
+for person in persons:
+    print(person.id, person.name)
